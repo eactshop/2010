@@ -110,6 +110,9 @@
           <span id="statusText">Đang kiểm tra số lượng quà...</span>
         </div>
 
+        <!-- Lượt hiện tại theo thứ tự bốc thăm -->
+        <div class="turn-banner" id="turnBanner" aria-live="polite" hidden></div>
+
         <!-- Thông báo hết quà -->
         <div class="notice notice-ended" id="endedNotice" hidden>
           <div class="notice-emoji" aria-hidden="true">🌷</div>
@@ -200,6 +203,26 @@
               trên <b>trình duyệt và thiết bị hiện tại</b>. Dữ liệu có thể bị xóa hoặc chỉnh sửa bởi người dùng,
               vì vậy đây <b>không phải</b> hệ thống chống bốc thăm trùng tuyệt đối cho toàn công ty.
             </p>
+            <form class="roster" id="rosterForm" autocomplete="off">
+              <h4>👩‍💼 Danh sách nhân viên bốc thăm</h4>
+              <div class="roster-inputs">
+                <input type="text" maxlength="40" placeholder="Tên nhân viên 1" aria-label="Tên nhân viên 1" />
+                <input type="text" maxlength="40" placeholder="Tên nhân viên 2" aria-label="Tên nhân viên 2" />
+                <input type="text" maxlength="40" placeholder="Tên nhân viên 3" aria-label="Tên nhân viên 3" />
+                <input type="text" maxlength="40" placeholder="Tên nhân viên 4" aria-label="Tên nhân viên 4" />
+                <input type="text" maxlength="40" placeholder="Tên nhân viên 5" aria-label="Tên nhân viên 5" />
+              </div>
+              <div class="organizer-actions">
+                <button type="submit" class="btn btn-primary">🎲 Random thứ tự bốc thăm</button>
+                <button type="button" class="btn btn-ghost" id="clearOrderBtn">Bỏ thứ tự</button>
+              </div>
+              <ol class="order-list" id="orderList" hidden></ol>
+              <p class="organizer-hint">
+                Sau khi random, mỗi lượt bốc sẽ tự lấy tên theo đúng thứ tự trên – kết quả ghi theo tên của lượt đó.
+                Bốc xong một người, bấm “Lượt cho người tiếp theo” để chuyển sang tên kế tiếp.
+              </p>
+            </form>
+
             <div class="organizer-actions">
               <button type="button" class="btn btn-soft" id="nextPersonBtn">👭 Lượt cho người tiếp theo</button>
               <button type="button" class="btn btn-danger" id="resetBtn">🔄 Đặt lại dữ liệu demo</button>
