@@ -12,7 +12,7 @@
 
   // Đổi giá trị này khi bạn thay đổi danh sách/số lượng quà
   // để mọi trình duyệt tự đặt lại dữ liệu cũ.
-  const DATA_VERSION = "2010-v2";
+  const DATA_VERSION = "2010-v3";
   const STORAGE_KEY = "boc-tham-20-10";
 
   /**
@@ -25,6 +25,8 @@
    * - wish:     lời chúc riêng của món quà
    * - quantity: số lượng
    * - weight:   trọng số xác suất (càng lớn càng dễ trúng; 0 = không bao giờ trúng)
+   * - reservedFor: (tùy chọn) tên được chỉ định sẵn – người có tên này luôn nhận quà này,
+   *               người khác không bao giờ bốc trúng
    */
   const GIFTS = [
     {
@@ -57,6 +59,17 @@
       quantity: 1,
       weight: 1,
     },
+    {
+      id: "date-titiay",
+      name: "1 buổi đi date với anh TiTiAy",
+      image: "",
+      emoji: "💘",
+      tone: "#FFE1EB",
+      wish: "Một buổi hẹn hò lãng mạn với anh TiTiAy – chuẩn bị váy đẹp và nụ cười thật xinh nhé!",
+      quantity: 1,
+      weight: 0,
+      reservedFor: "Nhung",
+    },
   ];
 
   // Lời chúc ngẫu nhiên ghép cùng phần quà (thêm/sửa thoải mái).
@@ -77,6 +90,7 @@
 
   const WISH_TONES = ["#FFE1EB", "#E8D9FF", "#D9F1FF", "#FFE2C6", "#DDF5E2"];
   const SHAKE_MS = 1600;
+  const ROSTER_SIZE = 5; // số nhân viên trong danh sách bốc thăm
 
   /* =======================================================
      2. TIỆN ÍCH
@@ -149,7 +163,7 @@
   function freshState() {
     const stock = {};
     GIFTS.forEach((g) => (stock[g.id] = Math.max(0, Math.floor(g.quantity) || 0)));
-    return { version: DATA_VERSION, stock, history: [], participant: "", myResult: null };
+    return { version: DATA_VERSION, stock, history: [], participant: "", myResult: null, roster: [], order: [] };
   }
 
   function loadState() {
@@ -165,6 +179,13 @@
     base.history = Array.isArray(saved.history) ? saved.history.slice(0, 500) : [];
     base.participant = typeof saved.participant === "string" ? saved.participant.slice(0, 40) : "";
     base.myResult = saved.myResult && saved.myResult.giftId ? saved.myResult : null;
+    base.roster = Array.isArray(saved.roster) ? saved.roster.slice(0, ROSTER_SIZE).map((n) => String(n || "").slice(0, 40)) : [];
+    base.order = Array.isArray(saved.order)
+      ? saved.order
+          .filter((o) => o && typeof o.name === "string")
+          .slice(0, ROSTER_SIZE)
+          .map((o) => ({ name: o.name.slice(0, 40), giftId: o.giftId || null, giftName: o.giftName || null }))
+      : [];
     return base;
   }
 
@@ -175,15 +196,30 @@
      4. THUẬT TOÁN BỐC THĂM THEO TRỌNG SỐ
      ======================================================= */
   function availableGifts() {
-    return GIFTS.filter((g) => state.stock[g.id] > 0 && g.weight > 0);
+    return GIFTS.filter((g) => state.stock[g.id] > 0 && g.weight > 0 && !g.reservedFor);
+  }
+
+  /** Tên có chứa đúng từ được chỉ định không (vd "Chị Nhung kế toán" khớp "Nhung", "Nhưng" thì không). */
+  function nameMatches(name, target) {
+    const words = (s) => String(s || "").normalize("NFC").toLocaleLowerCase("vi").split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+    const nameWords = words(name);
+    return words(target).every((w) => nameWords.includes(w));
+  }
+
+  /** Quà được chỉ định sẵn cho người này (nếu còn hàng). */
+  function reservedGiftFor(name) {
+    if (!name) return null;
+    return GIFTS.find((g) => g.reservedFor && state.stock[g.id] > 0 && nameMatches(name, g.reservedFor)) || null;
   }
 
   function totalRemaining() {
     return GIFTS.reduce((s, g) => s + (state.stock[g.id] || 0), 0);
   }
 
-  /** Chọn 1 phần quà dựa trên trọng số, chỉ trong những quà còn hàng. */
-  function pickWeighted() {
+  /** Chọn 1 phần quà: ưu tiên quà chỉ định theo tên, còn lại bốc theo trọng số trong những quà còn hàng. */
+  function pickWeighted(name) {
+    const reserved = reservedGiftFor(name);
+    if (reserved) return reserved;
     const pool = availableGifts();
     if (!pool.length) return null;
     const total = pool.reduce((s, g) => s + g.weight, 0);
@@ -194,6 +230,27 @@
     }
     return pool[pool.length - 1]; // phòng sai số làm tròn
   }
+
+  /** Xáo trộn Fisher–Yates (dùng crypto nếu trình duyệt hỗ trợ). */
+  function shuffle(list) {
+    const a = list.slice();
+    const rand = (n) => {
+      if (window.crypto && crypto.getRandomValues) {
+        const buf = new Uint32Array(1);
+        crypto.getRandomValues(buf);
+        return buf[0] % n;
+      }
+      return Math.floor(Math.random() * n);
+    };
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = rand(i + 1);
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  /** Vị trí người đang đến lượt trong thứ tự bốc thăm (-1 nếu không có / đã bốc hết). */
+  const currentTurn = () => state.order.findIndex((o) => !o.giftId);
 
   const randomWish = () => WISHES[Math.floor(Math.random() * WISHES.length)];
   const giftById = (id) => GIFTS.find((g) => g.id === id);
@@ -307,7 +364,7 @@
     $("#giftList").innerHTML = GIFTS.map((g) => {
       const left = state.stock[g.id] || 0;
       const pct = g.quantity ? Math.round((left / g.quantity) * 100) : 0;
-      const chance = left > 0 && totalWeight ? ((g.weight / totalWeight) * 100).toFixed(1).replace(".0", "") : 0;
+      const chance = g.reservedFor ? "" : left > 0 && totalWeight ? ((g.weight / totalWeight) * 100).toFixed(1).replace(".0", "") : 0;
       return `
         <article class="gift-item ${left <= 0 ? "is-out" : ""}">
           <div class="gift-thumb" style="--tone:${g.tone}" aria-hidden="true">${giftArtHtml(g)}</div>
@@ -315,7 +372,7 @@
           <p>${escapeHtml(g.wish)}</p>
           <div class="stock">
             <div class="stock-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${g.quantity}" aria-valuenow="${left}" aria-label="Số lượng còn lại"><span style="width:${pct}%"></span></div>
-            <div class="stock-meta"><span>Còn lại: <b>${left}</b> / ${g.quantity}</span><span>Tỉ lệ ~${chance}%</span></div>
+            <div class="stock-meta"><span>Còn lại: <b>${left}</b> / ${g.quantity}</span><span>${g.reservedFor ? "Quà đặc biệt 💘" : `Tỉ lệ ~${chance}%`}</span></div>
           </div>
         </article>`;
     }).join("");
@@ -336,6 +393,44 @@
     list.innerHTML = state.history
       .map((h) => `<li><span>🎁</span><span>${escapeHtml(h.name || "Bạn ẩn danh")} nhận <b>${escapeHtml(h.giftName)}</b></span><time datetime="${h.time}">${formatTime(h.time)}</time></li>`)
       .join("");
+  }
+
+  function renderOrder() {
+    const list = $("#orderList");
+    if (!state.order.length) {
+      list.hidden = true;
+      list.innerHTML = "";
+      return;
+    }
+    const cur = state.myResult ? -1 : currentTurn();
+    list.hidden = false;
+    list.innerHTML = state.order
+      .map((o, i) => {
+        const cls = o.giftId ? "is-done" : i === cur ? "is-current" : "";
+        const status = o.giftId ? `🎁 <b>${escapeHtml(o.giftName)}</b>` : i === cur ? "👉 Đang đến lượt" : "Đang chờ";
+        return `<li class="${cls}" style="animation-delay:${i * 0.08}s"><span class="order-no">${i + 1}</span><span>${escapeHtml(o.name)}</span><span class="order-state">${status}</span></li>`;
+      })
+      .join("");
+  }
+
+  function renderTurnBanner() {
+    const banner = $("#turnBanner");
+    if (!state.order.length) {
+      banner.hidden = true;
+      return;
+    }
+    const total = state.order.length;
+    const cur = currentTurn();
+    banner.hidden = false;
+    if (state.myResult) {
+      const nextName = cur >= 0 ? state.order[cur].name : "";
+      banner.innerHTML = `🎉 <b>${escapeHtml(state.myResult.name || "Bạn")}</b> đã bốc xong` +
+        (nextName ? ` · Tiếp theo: <b>${escapeHtml(nextName)}</b>` : " · Đã bốc hết danh sách 🌷");
+    } else if (cur >= 0) {
+      banner.innerHTML = `🎯 Lượt ${cur + 1}/${total}: mời <b>${escapeHtml(state.order[cur].name)}</b> chọn hộp quà`;
+    } else {
+      banner.innerHTML = "🌷 Cả danh sách đã bốc thăm xong";
+    }
   }
 
   function renderStatus() {
@@ -364,6 +459,8 @@
     renderGiftList();
     renderHistory();
     renderStatus();
+    renderOrder();
+    renderTurnBanner();
   }
 
   /* =======================================================
@@ -492,7 +589,9 @@
       return;
     }
 
-    const gift = pickWeighted();
+    const turn = currentTurn();
+    const name = (turn >= 0 ? state.order[turn].name : $("#nameInput").value || state.participant || "").trim().slice(0, 40);
+    const gift = pickWeighted(name);
     if (!gift) {
       renderStatus();
       toast("Rất tiếc, tất cả phần quà đã được trao hết 🌷", "error");
@@ -509,7 +608,6 @@
 
     // Ghi nhận ngay (trừ số lượng, không để âm) để tránh mất dữ liệu nếu tải lại trang
     state.stock[gift.id] = Math.max(0, (state.stock[gift.id] || 0) - 1);
-    const name = ($("#nameInput").value || state.participant || "").trim().slice(0, 40);
     const result = {
       giftId: gift.id,
       giftName: gift.name,
@@ -521,6 +619,7 @@
     state.participant = name;
     state.myResult = result;
     state.history.unshift(result);
+    if (turn >= 0) Object.assign(state.order[turn], { giftId: gift.id, giftName: gift.name });
     save();
 
     try {
@@ -674,12 +773,13 @@
     }
     if (!confirm("Chuyển sang lượt cho người tiếp theo? Số quà còn lại và lịch sử vẫn được giữ nguyên.")) return;
     state.myResult = null;
-    state.participant = "";
-    nameInput.value = "";
+    const turn = currentTurn();
+    state.participant = turn >= 0 ? state.order[turn].name : "";
+    nameInput.value = state.participant;
     $("#nameHint").textContent = "";
     save();
     renderAll();
-    toast("Sẵn sàng cho người tiếp theo 🎀", "success");
+    toast(turn >= 0 ? `Mời ${state.participant} bốc thăm 🎀` : "Sẵn sàng cho người tiếp theo 🎀", "success");
     document.getElementById("pick").scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth" });
   });
 
@@ -689,9 +789,54 @@
     storage.clear();
     state = freshState();
     nameInput.value = "";
+    rosterInputs.forEach((input) => (input.value = ""));
     $("#nameHint").textContent = "";
     renderAll();
     toast("Đã đặt lại dữ liệu demo ✨", "success");
+  });
+
+  const rosterInputs = $$("#rosterForm input");
+  rosterInputs.forEach((input, i) => (input.value = state.roster[i] || ""));
+
+  $("#rosterForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (isDrawing) return;
+    const names = rosterInputs.map((input) => input.value.trim().slice(0, 40));
+    const emptyAt = names.findIndex((n) => !n);
+    if (emptyAt >= 0) {
+      toast(`Vui lòng nhập đủ ${ROSTER_SIZE} tên nhân viên.`, "error");
+      rosterInputs[emptyAt].focus();
+      return;
+    }
+    const lower = names.map((n) => n.toLocaleLowerCase("vi"));
+    if (new Set(lower).size !== names.length) {
+      toast("Có tên bị trùng – hãy thêm phòng ban hoặc ký hiệu để phân biệt nhé.", "error");
+      return;
+    }
+    if (state.order.some((o) => o.giftId) && !confirm("Thứ tự hiện tại đã có người bốc. Random lại thứ tự mới?")) return;
+    if (totalRemaining() < names.length) {
+      toast(`Chỉ còn ${totalRemaining()} phần quà cho ${names.length} người – hãy “Đặt lại dữ liệu demo” nếu cần đủ quà.`, "error", 5000);
+    }
+
+    state.roster = names;
+    state.order = shuffle(names).map((name) => ({ name, giftId: null, giftName: null }));
+    state.myResult = null;
+    state.participant = state.order[0].name;
+    nameInput.value = state.participant;
+    $("#nameHint").textContent = "";
+    save();
+    renderAll();
+    confetti(30);
+    toast(`Đã random thứ tự! Người bốc đầu tiên: ${state.participant} 🎲`, "success");
+  });
+
+  $("#clearOrderBtn").addEventListener("click", () => {
+    if (isDrawing || !state.order.length) return;
+    if (!confirm("Bỏ thứ tự bốc thăm hiện tại? Lịch sử và số quà vẫn được giữ nguyên.")) return;
+    state.order = [];
+    save();
+    renderAll();
+    toast("Đã bỏ thứ tự bốc thăm.");
   });
 
   /* =======================================================

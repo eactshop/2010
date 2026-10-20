@@ -711,6 +711,59 @@ main, .site-footer { position: relative; z-index: 2; }
 .organizer-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .organizer-hint { font-size: .85rem !important; }
 
+/* Danh sách & thứ tự bốc thăm */
+.roster { margin: 14px 0 18px; padding: 16px; border-radius: var(--radius-sm); background: var(--cream); border: 1px solid var(--line); }
+.roster h4 { margin: 0 0 10px; font-size: 1.05rem; }
+.roster-inputs { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; margin-bottom: 12px; }
+.roster-inputs input {
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  background: var(--white);
+  font: inherit;
+  color: var(--text);
+}
+.roster-inputs input:focus { outline: none; border-color: var(--pink); box-shadow: 0 0 0 4px rgba(255, 63, 129, .15); }
+.order-list { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 8px; }
+.order-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  padding: 8px 14px;
+  border-radius: 16px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  animation: order-in .45s ease both;
+}
+.order-list .order-no {
+  display: inline-grid; place-items: center;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--pink-pastel); color: var(--pink-dark); font-weight: 800;
+}
+.order-list .order-state { margin-left: auto; font-size: .88rem; color: var(--text-soft); }
+.order-list .order-state b { color: var(--pink-dark); }
+.order-list li.is-current { border: 2px solid var(--pink); background: #FFF0F5; }
+.order-list li.is-current .order-no { background: var(--pink); color: var(--white); }
+.order-list li.is-done { opacity: .85; }
+@keyframes order-in { from { opacity: 0; transform: translateY(8px) scale(.97); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .order-list li { animation: none; } }
+
+.turn-banner {
+  width: fit-content;
+  max-width: 100%;
+  margin: -12px auto 26px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  background: var(--white);
+  border: 2px dashed var(--pink);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+.turn-banner b { color: var(--pink-dark); }
+
 /* ---------------- Gift list ---------------- */
 .gifts { background: linear-gradient(180deg, var(--cream), #FFEFF4); }
 .gift-list {
