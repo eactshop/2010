@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bốc Thăm Quà Tặng 20/10</title>
+  <meta name="description" content="Bốc thăm quà tặng may mắn nhân ngày Phụ nữ Việt Nam 20/10 dành cho nhân viên công ty." />
+  <meta name="theme-color" content="#FF3F81" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%81%3C/text%3E%3C/svg%3E" />
+
+  <!-- Font dễ thương, hỗ trợ tiếng Việt. Nếu không tải được sẽ dùng font hệ thống. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Quicksand:wght@500;600;700&display=swap&subset=vietnamese" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Màn hình loading (tự ẩn bằng CSS sau vài giây kể cả khi JavaScript lỗi) -->
+  <div class="loader" id="loader" aria-hidden="true">
+    <div class="loader-gift">🎁</div>
+    <p>Đang chuẩn bị quà yêu thương...</p>
+  </div>
+
+  <!-- Lớp hiệu ứng nền: trái tim bay & hoa rơi -->
+  <div class="ambient" id="ambient" aria-hidden="true"></div>
+
+  <!-- ===================== THANH ĐIỀU HƯỚNG ===================== -->
+  <header class="site-header" id="siteHeader">
+    <div class="container nav-wrap">
+      <a href="#home" class="brand" aria-label="Bốc Thăm Quà Tặng 20/10 - Trang chủ">
+        <span class="brand-logo" aria-hidden="true">
+          <span class="mini-gift"><span class="mini-lid"></span><span class="mini-body"></span></span>
+        </span>
+        <span class="brand-text">Bốc Thăm Quà Tặng <b>20/10</b></span>
+      </a>
+
+      <button class="nav-toggle" id="navToggle" aria-label="Mở menu" aria-expanded="false" aria-controls="mainNav">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav class="main-nav" id="mainNav" aria-label="Điều hướng chính">
+        <a href="#home">Trang chủ</a>
+        <!-- Đã ẩn: <a href="#gifts">Danh sách quà</a> <a href="#wishes">Lời chúc</a> -->
+        <a href="#pick" class="nav-cta">Dành cho nhân viên</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- ===================== HERO ===================== -->
+    <section class="hero" id="home">
+      <div class="container hero-grid">
+        <div class="hero-text">
+          <span class="pill">Chào mừng ngày 20/10 ♡</span>
+          <h1>Bốc thăm may mắn – <span class="hl">Nhận quà yêu thương</span></h1>
+          <p class="hero-desc">Cùng nhau lan tỏa yêu thương và gửi những lời chúc tốt đẹp nhất đến các chị em phụ nữ trong công ty nhé!</p>
+          <a href="#pick" class="btn btn-primary btn-lg" id="heroCta">🎁 CHỌN HỘP QUÀ BÍ MẬT</a>
+          <ul class="hero-badges" aria-label="Điểm nổi bật">
+            <li><span>🎀</span> 5 hộp quà bí mật</li>
+            <li><span>💌</span> Lời chúc ngọt ngào</li>
+            <li><span>🌷</span> Trọn vẹn yêu thương</li>
+          </ul>
+        </div>
+
+        <div class="hero-art" aria-hidden="true">
+          <div class="hero-blob"></div>
+          <span class="deco deco-heart d1">♥</span>
+          <span class="deco deco-heart d2">♥</span>
+          <span class="deco deco-star d3">✦</span>
+          <span class="deco deco-star d4">✧</span>
+          <span class="deco deco-heart d5">♡</span>
+          <div class="tulip-slot tulip-left" data-art="tulip" data-color="#FF7FA8"></div>
+          <div class="tulip-slot tulip-left2" data-art="tulip" data-color="#C9A8FF"></div>
+          <div class="cat-slot" data-art="cat">
+            <!-- Fallback khi JavaScript chưa chạy -->
+            <span class="cat-fallback">🐱🎁</span>
+          </div>
+          <div class="tulip-slot tulip-right" data-art="tulip" data-color="#FFB27F"></div>
+          <div class="tulip-slot tulip-right2" data-art="tulip" data-color="#FF3F81"></div>
+        </div>
+      </div>
+      <div class="wave" aria-hidden="true"></div>
+    </section>
+
+    <!-- ===================== CHỌN HỘP QUÀ ===================== -->
+    <section class="section pick" id="pick">
+      <div class="container">
+        <div class="section-head">
+          <h2>🎁 Chọn hộp quà bí mật</h2>
+          <p>Mỗi hộp quà là một điều bất ngờ. Hãy chọn hộp quà mà bạn yêu thích nhé!</p>
+        </div>
+
+        <!-- Nhập tên (không bắt buộc) -->
+        <form class="name-card" id="nameForm" autocomplete="off" hidden>
+          <label for="nameInput">
+            <span class="name-icon" aria-hidden="true">💌</span>
+            Tên của bạn <small>(không bắt buộc – để lời chúc dành riêng cho bạn)</small>
+          </label>
+          <div class="name-row">
+            <input type="text" id="nameInput" maxlength="40" placeholder="Ví dụ: Chị Lan phòng Kế toán" />
+            <button type="submit" class="btn btn-soft">Lưu tên</button>
+          </div>
+          <p class="name-hint" id="nameHint" aria-live="polite"></p>
+        </form>
+
+        <!-- Trạng thái -->
+        <div class="status-bar" id="statusBar" aria-live="polite">
+          <span class="status-dot"></span>
+          <span id="statusText">Đang kiểm tra số lượng quà...</span>
+        </div>
+
+        <!-- Thông báo hết quà -->
+        <div class="notice notice-ended" id="endedNotice" hidden>
+          <div class="notice-emoji" aria-hidden="true">🌷</div>
+          <div>
+            <h3>Chương trình đã kết thúc</h3>
+            <p>Tất cả phần quà đã được trao hết. Cảm ơn bạn đã quan tâm và chúc bạn một ngày 20/10 thật ngọt ngào! 💗</p>
+          </div>
+        </div>
+
+        <!-- Thông báo đã bốc thăm -->
+        <div class="notice notice-done" id="doneNotice" hidden>
+          <div class="notice-emoji" aria-hidden="true">🎀</div>
+          <div>
+            <h3>Bạn đã bốc thăm trên trình duyệt này rồi</h3>
+            <p>Phần quà của bạn: <b id="doneGiftName">—</b></p>
+          </div>
+          <button type="button" class="btn btn-primary" id="viewResultBtn">Xem lại kết quả</button>
+        </div>
+
+        <!-- 5 hộp quà: màu sắc chỉ là hình thức, KHÔNG quyết định phần quà -->
+        <div class="boxes" id="boxes">
+          <article class="box-card" data-index="0" style="--bg:#FFE1EB;--c:#FFC4D8;--lid:#FFB0CB;--edge:#F59AB9">
+            <div class="gift" aria-hidden="true">
+              <div class="gift-glow"></div>
+              <div class="gift-lid"><span class="bow"><i></i></span></div>
+              <div class="gift-body"></div>
+            </div>
+            <h3>Hồng pastel</h3>
+            <button type="button" class="btn btn-primary box-btn">Chọn hộp này</button>
+          </article>
+
+          <article class="box-card" data-index="1" style="--bg:#E8D9FF;--c:#D3BEFF;--lid:#C4A8FF;--edge:#AE8CF2">
+            <div class="gift" aria-hidden="true">
+              <div class="gift-glow"></div>
+              <div class="gift-lid"><span class="bow"><i></i></span></div>
+              <div class="gift-body"></div>
+            </div>
+            <h3>Tím lavender</h3>
+            <button type="button" class="btn btn-primary box-btn">Chọn hộp này</button>
+          </article>
+
+          <article class="box-card" data-index="2" style="--bg:#D9F1FF;--c:#B9E3FF;--lid:#A3D8FB;--edge:#86C5EE">
+            <div class="gift" aria-hidden="true">
+              <div class="gift-glow"></div>
+              <div class="gift-lid"><span class="bow"><i></i></span></div>
+              <div class="gift-body"></div>
+            </div>
+            <h3>Xanh baby</h3>
+            <button type="button" class="btn btn-primary box-btn">Chọn hộp này</button>
+          </article>
+
+          <article class="box-card" data-index="3" style="--bg:#FFE2C6;--c:#FFCDA0;--lid:#FFBE85;--edge:#F2A667">
+            <div class="gift" aria-hidden="true">
+              <div class="gift-glow"></div>
+              <div class="gift-lid"><span class="bow"><i></i></span></div>
+              <div class="gift-body"></div>
+            </div>
+            <h3>Cam đào</h3>
+            <button type="button" class="btn btn-primary box-btn">Chọn hộp này</button>
+          </article>
+
+          <article class="box-card" data-index="4" style="--bg:#DDF5E2;--c:#BDEBC9;--lid:#A6E2B6;--edge:#86CF9C">
+            <div class="gift" aria-hidden="true">
+              <div class="gift-glow"></div>
+              <div class="gift-lid"><span class="bow"><i></i></span></div>
+              <div class="gift-body"></div>
+            </div>
+            <h3>Xanh mint</h3>
+            <button type="button" class="btn btn-primary box-btn">Chọn hộp này</button>
+          </article>
+        </div>
+
+        <p class="fair-note">✨ Màu hộp chỉ để bạn chọn cho vui – phần quà được bốc ngẫu nhiên theo tỉ lệ đã cấu hình.</p>
+
+        <!-- Lịch sử & công cụ demo -->
+        <div class="history-card">
+          <div class="history-head">
+            <h3>📒 Lịch sử bốc thăm trên trình duyệt này</h3>
+          </div>
+          <ul class="history-list" id="historyList">
+            <li class="history-empty">Chưa có lượt bốc thăm nào.</li>
+          </ul>
+
+          <details class="organizer">
+            <summary>Dành cho người tổ chức</summary>
+            <p>
+              Dữ liệu (số quà còn lại, lịch sử, tên người tham gia) chỉ được lưu bằng <code>localStorage</code>
+              trên <b>trình duyệt và thiết bị hiện tại</b>. Dữ liệu có thể bị xóa hoặc chỉnh sửa bởi người dùng,
+              vì vậy đây <b>không phải</b> hệ thống chống bốc thăm trùng tuyệt đối cho toàn công ty.
+            </p>
+            <div class="organizer-actions">
+              <button type="button" class="btn btn-soft" id="nextPersonBtn">👭 Lượt cho người tiếp theo</button>
+              <button type="button" class="btn btn-danger" id="resetBtn">🔄 Đặt lại dữ liệu demo</button>
+            </div>
+            <p class="organizer-hint">
+              “Lượt cho người tiếp theo” giữ nguyên số quà còn lại và lịch sử (phù hợp khi nhiều người bốc chung một máy).
+              “Đặt lại dữ liệu demo” xóa toàn bộ và khôi phục số lượng quà ban đầu.
+            </p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== DANH SÁCH QUÀ ===================== -->
+    <section class="section gifts" id="gifts" hidden>
+      <div class="container">
+        <div class="section-head">
+          <h2>🎀 Danh sách quà</h2>
+          <p>Những món quà nhỏ xinh đang chờ bạn mở. Số lượng được cập nhật sau mỗi lượt bốc thăm.</p>
+        </div>
+        <div class="gift-list" id="giftList">
+          <p class="placeholder">Đang tải danh sách quà...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== LỜI CHÚC ===================== -->
+    <section class="section wishes" id="wishes" hidden>
+      <div class="container">
+        <div class="section-head">
+          <h2>💌 Lời chúc yêu thương</h2>
+          <p>Mỗi phần quà sẽ đi kèm một lời chúc ngẫu nhiên dành riêng cho bạn.</p>
+        </div>
+        <div class="wish-grid" id="wishGrid">
+          <p class="placeholder">Đang tải lời chúc...</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================== CUỐI TRANG ===================== -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-art" aria-hidden="true">
+        <div class="tulip-slot" data-art="tulip" data-color="#FF7FA8"></div>
+        <div class="footer-cat" data-art="catPeek"><span class="cat-fallback">🐱</span></div>
+        <div class="tulip-slot" data-art="tulip" data-color="#C9A8FF"></div>
+      </div>
+      <h2>Phụ nữ là để yêu thương ♡</h2>
+      <p>Cảm ơn bạn đã tham gia chương trình bốc thăm quà tặng 20/10. Chúc bạn luôn rạng rỡ, hạnh phúc và nhận được thật nhiều yêu thương mỗi ngày!</p>
+      <div class="footer-deco" aria-hidden="true">🎀 ♥ 🌷 ♥ 🎀</div>
+      <small>© 20/10 · Made with 💗 for all the lovely ladies</small>
+    </div>
+  </footer>
+
+  <!-- ===================== MODAL KẾT QUẢ ===================== -->
+  <div class="modal" id="resultModal" hidden>
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+      <div class="result-card" id="resultCard">
+        <div class="big-bow" aria-hidden="true"><span></span><span></span><i></i></div>
+        <p class="result-sub" id="resultSub"></p>
+        <h2 class="result-title" id="resultTitle">🎉 CHÚC MỪNG BẠN ĐÃ NHẬN ĐƯỢC QUÀ!</h2>
+        <p class="result-for" id="resultFor"></p>
+
+        <div class="result-gift" id="resultGiftArt" aria-hidden="true"></div>
+        <h3 class="result-gift-name" id="resultGiftName">—</h3>
+        <p class="result-gift-note" id="resultGiftNote"></p>
+
+        <div class="wish-board">
+          <div class="board-cat" data-art="catPeek" aria-hidden="true"></div>
+          <div class="board">
+            <p id="resultWish"></p>
+          </div>
+        </div>
+        <p class="result-date" id="resultDate"></p>
+      </div>
+
+      <div class="result-actions">
+        <button type="button" class="btn btn-primary" id="shareBtn">💗 Chia sẻ niềm vui</button>
+        <button type="button" class="btn btn-soft" id="downloadBtn">📸 Tải ảnh kết quả</button>
+        <button type="button" class="btn btn-ghost" id="homeBtn">🏠 Về trang chủ</button>
+      </div>
+      <button type="button" class="modal-close" data-close aria-label="Đóng">✕</button>
+    </div>
+  </div>
+
+  <!-- Lớp pháo giấy -->
+  <div class="confetti-layer" id="confettiLayer" aria-hidden="true"></div>
+
+  <!-- Thông báo nhỏ -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- html2canvas (tùy chọn) để tải ảnh kết quả. Nếu không tải được, website vẫn hoạt động bình thường. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+  <script src="script.js" defer></script>
+</body>
+</html>
